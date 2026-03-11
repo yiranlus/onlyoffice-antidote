@@ -5,6 +5,7 @@ class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
         console.log("created WordProcessorAgent");
         super();
         this.Asc = Asc;
+        this.updateByAntidote = false;
     }
 
     sessionEnded() {
@@ -12,16 +13,27 @@ class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
         super.sessionEnded();
     }
 
-    findIndex(pos) {
+    findIndex(pos, eager=false) {
         let i = 0, j = 0;
-        while (
-            i + 1 < this.textArray.length &&
-            this.textArray[i + 1].globalPos < pos)
-            i++;
-        while (
-            j + 1 < this.textArray[i].textArray.length &&
-            this.textArray[i].textArray[j+1].relPos < pos - this.textArray[i].globalPos)
-            j++;
+        if (eager) {
+            while (
+                i + 1 < this.textArray.length &&
+                this.textArray[i + 1].globalPos <= pos)
+                i++;
+            while (
+                j + 1 < this.textArray[i].textArray.length &&
+                this.textArray[i].textArray[j+1].relPos <= pos - this.textArray[i].globalPos)
+                j++;
+        } else {
+            while (
+                i + 1 < this.textArray.length &&
+                this.textArray[i + 1].globalPos < pos)
+                i++;
+            while (
+                j + 1 < this.textArray[i].textArray.length &&
+                this.textArray[i].textArray[j+1].relPos < pos - this.textArray[i].globalPos)
+                j++;
+        }
 
         return {
             index1: i,
@@ -30,10 +42,11 @@ class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
     }
 
     correctIntoWordProcessor(params) {
+        this.updateByAntidote = true;
         let start = params.positionStartReplace;
         let end = params.positionReplaceEnd
 
-        let index = this.findIndex(start);
+        let index = this.findIndex(start, true);
         let i = index.index1, j = index.index2;
 
         let textElement = this.textArray[i].textArray[j];
@@ -58,6 +71,10 @@ class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
                 var oElement = oDocument.GetElement(index1).GetElement(index2);
                 var oRange = oElement.GetRange(start, end);
 
+                // console.log(`the Run: "${oElement.GetText()}"`)
+                // console.log(`Text in the range: "${oRange.GetText()}"`);
+                // console.log(`newText in the range: "${newString}"`);
+
                 oRange.Delete();
                 oRange.AddText(newString);
                 return {
@@ -80,6 +97,7 @@ class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
             console.log("error: ", error);
             return false;
         }
+        this.updateByAntidote = false;
 
         return true;
     }
@@ -93,8 +111,8 @@ class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
     }
 
     allowEdit(params) {
-        let indexStart = this.findIndex(params.positionStart);
-        let indexEnd = this.findIndex(params.positionEnd - 1);
+        let indexStart = this.findIndex(params.positionStart, true);
+        let indexEnd = this.findIndex(params.positionEnd);
 
         // console.log("params: ", params);
         // console.log("Index: ", indexStart, indexEnd);
@@ -152,6 +170,7 @@ class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
                 textArray.push({ globalPos, textArray: subTextArray });
                 globalPos += relPos;
             }
+            console.log("textArray: ", textArray);
 
             return {
                 title: oDocumentInfo.Title,
@@ -167,7 +186,6 @@ class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
             }
             this.title = res.title;
             this.textArray = res.textArray;
-            console.log("textArray in the callback: ", JSON.stringify(this.textArray));
         });
     }
 }
@@ -237,11 +255,9 @@ class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
         });
 
         window.Asc.plugin.attachEditorEvent("onParagraphText", (data) => {
-            console.log("Paragraph updated:", data.paragraphId);
-            // data.annotations.forEach(a => {
-            //     console.log(`Annotation ${a.id}: ${a.name} at ${a.start} (${a.length} chars)`);
-            // });
-            wordProcessorAgent.updateTextArray();
+            if (!wordProcessorAgent.updateByAntidote) {
+                wordProcessorAgent.updateTextArray();
+            }
         });
 
         launchCorrector();
