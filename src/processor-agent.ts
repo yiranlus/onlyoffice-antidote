@@ -203,20 +203,25 @@ export class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
 
       let paragraphs: Paragraph[] = [], globalPos = 0;
       for (let i = 0; i < oDocument.GetElementsCount(); i++) {
-        let oElement1 = oDocument.GetElement(i);
+        let oParagraph = oDocument.GetElement(i);
 
         let segments: Segment[] = [], relPos = 0;
-        for (let j = 0; j < oElement1.GetElementsCount(); j++) {
-          let oElement2 = oElement1.GetElement(j);
 
-          if (oElement2) {
-            let text = oElement2.GetText();
-            segments.push({ relPos, text })
-            relPos += text.length
-          } else {
-            segments.push({ relPos, text: "" })
+        if (oParagraph.GetClassType() === "paragraph") {
+          for (let j = 0; j < oParagraph.GetElementsCount(); j++) {
+            let oSegment = oParagraph.GetElement(j);
+
+            if (oSegment && oSegment.GetText) {
+              // console.log(oSegment);
+              // console.log("calling GetText: ", oSegment.GetText());
+              let text = oSegment.GetText();
+              segments.push({ relPos, text })
+              relPos += text.length
+            } else {
+              segments.push({ relPos, text: "" })
+            }
+
           }
-
         }
         paragraphs.push({ globalPos, segments: segments });
         globalPos += relPos;
