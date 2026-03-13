@@ -2,7 +2,7 @@ name: Build Plugin
 
 on:
   push:
-    branches: [ main ]
+    branches: [ dev ]
   workflow_dispatch:  # Allows manual runs
   workflow_call:
 
