@@ -9,6 +9,7 @@ import {
   StyleInfo,
   TextStyle
 } from "@druide-informatique/antidote-api-js";
+import { Mutex } from "async-mutex";
 
 type Paragraph = {
   globalPos: number,
@@ -29,6 +30,10 @@ export class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
   updatingByAntidote: boolean;
   paragraphs: Paragraph[] | null;
 
+  replacingQueue: ParamsReplace[];
+  mutexQueue: Mutex;
+  mutexDocument: Mutex;
+
   constructor(Asc: any) {
     super();
     this.Asc = Asc;
@@ -36,6 +41,10 @@ export class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
 
     this.title = "";
     this.paragraphs = null;
+
+    this.replacingQueue = [];
+    this.mutexQueue = new Mutex();
+    this.mutexDocument = new Mutex();
   }
 
   sessionEnded() {
@@ -65,10 +74,44 @@ export class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
   }
 
   correctIntoWordProcessor(params: ParamsReplace): boolean {
-    // Waiting to previous action to finish
-    if (this.updatingByAntidote) return false;
+    this.mutexQueue.runExclusive(() => {
+      console.log("Locking Queue");
+      this.replacingQueue.push(params);
+    })
+    .then(() => {
+      console.log("Calling Apply Corrections")
+      this.applyCorrections();
+    })
+    .catch(error => {
+      console.log(error);
+    })
 
+    return true;
+  }
+
+  async applyCorrections() {
+    let params = await this.mutexQueue.runExclusive(() => {
+      console.log("Retriving Item from the Queue")
+      return this.replacingQueue.shift();
+    });
+
+    while (params) {
+      this.mutexDocument.runExclusive(async () => {
+        console.log("Applying a Correction")
+        await this._correctIntoWordProcessor(params!);
+      });
+
+      params = await this.mutexQueue.runExclusive(() => {
+        console.log("Retriving Item from the Queue")
+        return this.replacingQueue.shift();
+      })
+    }
+  }
+
+  async _correctIntoWordProcessor(params: ParamsReplace) {
+    // Waiting to previous action to finish
     this.updatingByAntidote = true;
+    console.log("ParasReplace: ", params);
 
     let elementIndex = this.findIndex(params.positionStartReplace, true);
 
@@ -81,35 +124,36 @@ export class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgent {
 
     this.Asc.scope.paramsReplace = { elementIndex, text: newText };
 
-    this.Asc.plugin.callCommand(() => {
-      const { elementIndex, text } = Asc.scope.paramsReplace;
+    return new Promise<void>(resolve => {
+      this.Asc.plugin.callCommand(() => {
+        const { elementIndex, text } = Asc.scope.paramsReplace;
 
-      var oDocument = Api.GetDocument();
-      var oElement = oDocument.GetElement(elementIndex);
+        var oDocument = Api.GetDocument();
+        var oElement = oDocument.GetElement(elementIndex);
 
-      var oldText = oElement.GetText({"Numbering": false}).replace(/(\r\n)*$/, "");
+        var oldText = oElement.GetText({ "Numbering": false }).replace(/(\r\n)*$/, "");
 
-      oElement.Select();
-      Api.ReplaceTextSmart([text]);
+        oElement.Select();
+        Api.ReplaceTextSmart([text]);
 
-      const newText = oElement.GetText({"Numbering": false}).replace(/(\r\n)*$/, "");
+        const newText = oElement.GetText({ "Numbering": false }).replace(/(\r\n)*$/, "");
 
-      return {
-        text: newText,
-        diff: newText.length - oldText.length
-      }
-    },
-    false,
-    true,
-    (res: {text: string, diff: number}) => {
-      this.paragraphs![elementIndex].text = res.text;
-      for (let i = elementIndex + 1; i < this.paragraphs!.length; i++) {
-        this.paragraphs![i].globalPos += res.diff;
-      }
-      this.updatingByAntidote = false;
+        return {
+          text: newText,
+          diff: newText.length - oldText.length
+        }
+      },
+      false,
+      true,
+      (res: { text: string, diff: number }) => {
+        this.paragraphs![elementIndex].text = res.text;
+        for (let i = elementIndex + 1; i < this.paragraphs!.length; i++) {
+          this.paragraphs![i].globalPos += res.diff;
+        }
+        this.updatingByAntidote = false;
+        resolve();
+      });
     });
-
-    return true;
   }
 
   configuration(): WordProcessorConfiguration {
