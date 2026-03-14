@@ -1,18 +1,28 @@
-declare global {
-    interface Window {
-        /**
-        * OnlyOffice plugin globals - intentionally untyped for simplicity
-        * Use (window.Asc as any) in code
-        */
-        Asc?: any;
-    }
+interface IAsc {
+  PluginWindow: new () => any;
 
+  plugin: any;
+  scope: {
+    paramsReplace: {
+      elementIndex: number, newText: string
+    }
+  }
+}
+
+declare global {
+  /**
+  * Document Builder API - available inside Asc.plugin.callCommand()
+  * Use (Api as any) in code
+  */
+  var Asc: IAsc;
+  var Api: any;
+  interface Window {
     /**
-    * Document Builder API - available inside Asc.plugin.callCommand()
-    * Use (Api as any) in code
+    * OnlyOffice plugin globals - intentionally untyped for simplicity
+    * Use (window.Asc as any) in code
     */
-    const Asc: any;
-    const Api: any;
+    Asc: IAsc;
+  }
 }
 
 export {};
