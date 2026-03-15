@@ -45,7 +45,9 @@ export abstract class WordProcessorAgentOnlyOffice extends WordProcessorAgent {
   }
 
   sessionEnded(): void {
+    super.sessionEnded();
     this.Asc.plugin.detachEditorEvent("onParagraphText");
+    this.Asc.plugin.executeCommand("close", "");
   }
 
   _internalUpdateText() {

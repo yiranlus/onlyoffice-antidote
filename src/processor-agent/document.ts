@@ -26,26 +26,12 @@ export class EmptyDataError extends Error {
 export class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgentOnlyOfficeBase {
   paragraphs: Paragraph[] | null;
 
-  replacingQueue: ParamsReplace[];
-  mutexQueue: Mutex;
-  mutexDocument: Mutex;
-
-  mutexUpdateText: Mutex;
-
   constructor(Asc: any, title: string) {
     super(Asc, title);
 
     this.paragraphs = null;
 
     this.replacingQueue = [];
-    this.mutexQueue = new Mutex();
-    this.mutexDocument = new Mutex();
-    this.mutexUpdateText = new Mutex();
-  }
-
-  sessionEnded() {
-    this.Asc.plugin.executeCommand("close", "");
-    super.sessionEnded();
   }
 
   findIndex(pos: number, eager: boolean = false): number {

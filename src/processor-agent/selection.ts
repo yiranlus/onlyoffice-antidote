@@ -25,11 +25,6 @@ export class WordProcessorAgentOnlyOfficeSelection extends WordProcessorAgentOnl
     this.range = range;
   }
 
-  sessionEnded() {
-    this.Asc.plugin.executeCommand("close", "");
-    super.sessionEnded();
-  }
-
   configuration(): WordProcessorConfiguration {
     return {
       documentTitle: `${this.title} [selection]`,
@@ -38,7 +33,7 @@ export class WordProcessorAgentOnlyOfficeSelection extends WordProcessorAgentOnl
     };
   }
 
-  correctIntoWordProcessor(params: ParamsReplace): boolean {
+  applyCorrection(params: ParamsReplace) {
     this.Asc.scope.selectedRange = this.range;
     this.text = (
       this.text!.substring(0, params.positionStartReplace) +
@@ -47,7 +42,7 @@ export class WordProcessorAgentOnlyOfficeSelection extends WordProcessorAgentOnl
     )
 
     this.Asc.scope.selectedRange.text = this.text;
-    this.callCommand(
+    return this.callCommand(
       () => {
         const { start, end, text } = Asc.scope.selectedRange;
         const oDocument = Api.GetDocument();
@@ -76,8 +71,6 @@ export class WordProcessorAgentOnlyOfficeSelection extends WordProcessorAgentOnl
       this.range = range;
       console.log("Updated range: ", this.range);
     });
-
-    return true;
   }
 
   allowEdit(params: ParamsAllowEdit): boolean {
@@ -85,13 +78,17 @@ export class WordProcessorAgentOnlyOfficeSelection extends WordProcessorAgentOnl
   }
 
   textZonesAvailable(): boolean {
+    if (this.replacingQueue.length > 0
+      && !this.mutexQueue.isLocked()
+      && !this.mutexDocument.isLocked())
+      return false;
     return !!this.text;
   }
 
-  zonesToCorrect(params: ParamsGetZonesToCorrect): TextZoneConnectix[] {
+  zonesToCorrect(_params: ParamsGetZonesToCorrect): TextZoneConnectix[] {
     return [
       {
-        text: this.text ? this.text : "Should not be there",
+        text: this.text!,
         zoneId: "",
         zoneIsFocused: true
       }

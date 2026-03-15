@@ -6,7 +6,7 @@ import {
 import * as utils from "./utils";
 import { WordProcessorAgentOnlyOffice } from "./processor-agent/base";
 import { WordProcessorAgentOnlyOfficeDocument } from "./processor-agent/document";
-// import { Range, WordProcessorAgentOnlyOfficeSelection } from "./processor-agent/selection";
+import { WordProcessorAgentOnlyOfficeSelection } from "./processor-agent/selection";
 
 ((window, undefined) => {
   let wordProcessorAgent: WordProcessorAgentOnlyOffice | null;
