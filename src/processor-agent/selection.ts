@@ -18,7 +18,6 @@ export class WordProcessorAgentOnlyOfficeSelection extends WordProcessorAgentOnl
   range: Range;
   text?: string;
 
-  mutexUpdateText: Mutex;
 
   constructor(Asc: IAsc, title: string, range: Range) {
     super(Asc, title);
