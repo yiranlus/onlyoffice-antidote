@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+* Fix some bugs
+
 ## 0.2.0
 
 * Add support to correction on selected text in Document
