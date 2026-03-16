@@ -33,5 +33,5 @@ jobs:
       uses: actions/upload-artifact@v6
       with:
         name: plugin-build
-        path: onlyoffice-antidote.plugin
+        path: onlyoffice-textcure.plugin
         retention-days: 30
