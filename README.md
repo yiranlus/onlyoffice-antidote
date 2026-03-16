@@ -1,6 +1,6 @@
 # onlyoffice-antidote
 
-Antidote plugin for [ONLYOFFICE](https://www.onlyoffice.com/).
+Unofficial Antidote plugin for [ONLYOFFICE](https://www.onlyoffice.com/).
 
 ## Installation
 
