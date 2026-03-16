@@ -1,6 +1,6 @@
 {
   "name": "onlyoffice-antidote-ts",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "packageManager": "pnpm@10.32.1",
   "devDependencies": {
     "@types/node": "^25.4.0",
