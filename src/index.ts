@@ -64,7 +64,6 @@ import { WordProcessorAgentOnlyOfficeSelection } from "./processor-agent/selecti
   }
 
   window.Asc.plugin.init = () => {
-    let firstLoad = true;
     utils.callCommand(
       window.Asc,
       () => {
@@ -76,30 +75,27 @@ import { WordProcessorAgentOnlyOfficeSelection } from "./processor-agent/selecti
         const start = oRange ? oRange.GetStartPos() : null;
         const end = oRange ? oRange.GetEndPos() : null;
 
-        const range = (start === end) ? null : { start, end };
+        const hasSelection = (start !== end);
 
         // if (oRange) {
         //   console.log(`oRange Text: "${JSON.stringify(oRange.GetText())}"`);
         //   console.log(range);
         // }
 
-        return { title, range };
+        return { title, hasSelection };
       }
     )
-    .then(async res => {
-      const { title, range } = res;
-      if (range) {
-        wordProcessorAgent = new WordProcessorAgentOnlyOfficeSelection(window.Asc, title, range);
+    .then(async ({ title, hasSelection }) => {
+      if (hasSelection) {
+        wordProcessorAgent = new WordProcessorAgentOnlyOfficeSelection(window.Asc, title);
       } else {
         wordProcessorAgent = new WordProcessorAgentOnlyOfficeDocument(window.Asc, title);
       }
       await wordProcessorAgent.updateText();
     })
     .then(() => {
-      firstLoad = false;
       launchCorrector();
     });
-
   };
 
   window.Asc.plugin.button = (id: string, windowId: string) => {

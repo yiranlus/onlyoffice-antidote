@@ -15,14 +15,14 @@ export type Range = {
 }
 
 export class WordProcessorAgentOnlyOfficeSelection extends WordProcessorAgentOnlyOffice {
-  range: Range;
-  text?: string;
+  range: Range | null;
+  text: string | null;
 
-
-  constructor(Asc: IAsc, title: string, range: Range) {
+  constructor(Asc: IAsc, title: string) {
     super(Asc, title);
 
-    this.range = range;
+    this.range = null;
+    this.text = null;
   }
 
   configuration(): WordProcessorConfiguration {
@@ -34,14 +34,13 @@ export class WordProcessorAgentOnlyOfficeSelection extends WordProcessorAgentOnl
   }
 
   applyCorrection(params: ParamsReplace) {
-    this.Asc.scope.selectedRange = this.range;
     this.text = (
       this.text!.substring(0, params.positionStartReplace) +
       params.newString +
       this.text!.substring(params.positionReplaceEnd)
     )
+    this.Asc.scope.selectedRange = { ...this.range!, text: this.text };
 
-    this.Asc.scope.selectedRange.text = this.text;
     return this.callCommand(
       () => {
         const { start, end, text } = Asc.scope.selectedRange;
@@ -74,7 +73,9 @@ export class WordProcessorAgentOnlyOfficeSelection extends WordProcessorAgentOnl
   }
 
   allowEdit(params: ParamsAllowEdit): boolean {
-    return true;
+    if (this.range)
+      return true;
+    return false;
   }
 
   textZonesAvailable(): boolean {
@@ -88,7 +89,7 @@ export class WordProcessorAgentOnlyOfficeSelection extends WordProcessorAgentOnl
   zonesToCorrect(_params: ParamsGetZonesToCorrect): TextZoneConnectix[] {
     return [
       {
-        text: this.text!,
+        text: this.range? this.text!: "Please select some text",
         zoneId: "",
         zoneIsFocused: true
       }
@@ -96,26 +97,32 @@ export class WordProcessorAgentOnlyOfficeSelection extends WordProcessorAgentOnl
   }
 
   updateText(): Promise<void> {
-    this.Asc.scope.selectedRange = this.range;
-
+    // console.log("updateText called");
     return this.callCommand(
       () => {
         const oDocument = Api.GetDocument();
-        const { start, end } = Asc.scope.selectedRange;
 
-        const oRange = oDocument.GetRange(start, end);
-        return oRange.GetText({
+        const oRange = oDocument.GetRangeBySelect();
+        const start = oRange ? oRange.GetStartPos() : null;
+        const end = oRange ? oRange.GetEndPos() : null;
+
+        const range = (start === end) ? null : { start, end };
+
+        const text = oRange.GetText({
           Numbering: false,
           Math: false,
           ParaSeparator: "\r\n\r\n",
           TableRowSeparator: "\r\n\r\n",
           TabSymbol: String.fromCharCode(160)
         });
+
+        return { range, text };
       },
       false,
       false
     )
-    .then(text => {
+    .then(({range, text}) => {
+      this.range = range as (Range | null);
       this.text = text;
       // console.log(`Stored text: ${JSON.stringify(this.text)}`);
     });
