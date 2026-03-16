@@ -13,6 +13,7 @@ export default defineConfig({
       input: {
         index: path.resolve(__dirname, 'index.html'),
         settings: path.resolve(__dirname, 'settings.html'),
+        about: path.resolve(__dirname, 'about.html'),
         connectionError: path.resolve(__dirname, 'connection-error.html'),
       },
       external: [/Asc/],
