@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+* Make selection update with the text selection in the document
+
 ## 0.2.2
 
 * Refactor some codes
