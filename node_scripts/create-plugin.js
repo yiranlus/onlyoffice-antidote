@@ -2,7 +2,7 @@ const fs = require('fs');
 const archiver = require('archiver');
 const path = require('path');
 
-const buildDir = path.resolve(__dirname, '../build');
+const buildDir = path.resolve(__dirname, '../textcure');
 const output = fs.createWriteStream(path.resolve(__dirname, '../onlyoffice-textcure.plugin'));
 
 const archive = archiver('zip', { zlib: { level: 9 } });

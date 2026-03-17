@@ -146,5 +146,5 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
-build/
+textcure/
 *.plugin

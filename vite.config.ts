@@ -8,7 +8,7 @@ export default defineConfig({
   base: "./",
   build: {
     // minify: false,
-    outDir: 'build',
+    outDir: 'textcure',
     rollupOptions: {
       input: {
         index: path.resolve(__dirname, 'index.html'),
@@ -30,7 +30,7 @@ export default defineConfig({
       configData.version = pkg.version;
       configData.offered = pkg.author;
 
-      writeFileSync("./build/config.json", JSON.stringify(configData, null, 2));
+      writeFileSync("./textcure/config.json", JSON.stringify(configData, null, 2));
     }
   }]
 });

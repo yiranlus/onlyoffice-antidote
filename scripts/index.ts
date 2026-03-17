@@ -48,6 +48,11 @@ import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agen
 
   function launchCorrector() {
     AntidoteConnector.announcePresence();
+
+    if (AntidoteConnector.isDetected()) {
+      console.log("Antidote Connector is detected")
+    }
+
     const agent = new ConnectixAgent(
       wordProcessorAgent!,
       AntidoteConnector.isDetected() ?
@@ -66,7 +71,6 @@ import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agen
 
   window.Asc.plugin.init = (text: string) => {
     const alternativeText = (text.length === 0) ? null : text;
-    console.log(`Top-level selected text: ${JSON.stringify(alternativeText)}`);
 
     if (wordProcessorAgent && wordProcessorAgent.isAvailable) {
       // On every selection change
@@ -105,11 +109,6 @@ import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agen
               const end = oRange ? oRange.GetEndPos() : null;
 
               const hasSelection = (start !== end);
-
-              // if (oRange) {
-              //   console.log(`oRange Text: "${JSON.stringify(oRange.GetText())}"`);
-              //   console.log(range);
-              // }
 
               return { title, hasSelection };
             },
