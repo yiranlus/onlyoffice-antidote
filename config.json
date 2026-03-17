@@ -9,8 +9,46 @@
       },
       "url": "index.html",
       "icons": [
-        "resources/images/icon.png",
-        "resources/images/icon@2x.png"
+        "resources/light/icon.png",
+        "resources/light/icon@2x.png"
+      ],
+      "icons2": [
+        {
+          "style": "light",
+          "100%": {
+            "normal":  "resources/light/icon.png"
+          },
+          "125%": {
+            "normal":  "resources/light/icon@1.25x.png"
+          },
+          "150%": {
+            "normal":  "resources/light/icon@1.5x.png"
+          },
+          "175%": {
+            "normal":  "resources/light/icon@1.75x.png"
+          },
+          "200%": {
+            "normal":  "resources/light/icon@2x.png"
+          }
+        },
+        {
+          "style": "dark",
+          "100%": {
+            "normal":  "resources/dark/icon.png"
+          },
+          "125%": {
+            "normal":  "resources/dark/icon@1.25x.png"
+          },
+          "150%": {
+            "normal":  "resources/dark/icon@1.5x.png"
+          },
+          "175%": {
+            "normal":  "resources/dark/icon@1.75x.png"
+          },
+          "200%": {
+            "normal":  "resources/dark/icon@2x.png"
+          }
+        }
       ],
       "initOnSelectionChanged": true,
       "isViewer": false,
@@ -24,10 +62,18 @@
       "initData": "",
       "buttons": [],
       "store": {
+        "background":{
+          "light": "#f5f5f5",
+          "dark": "#555555"
+        },
+        "screenshots" : [
+          "resources/store/screenshots/screen_1.png"
+        ],
         "icons": {
           "light": "resources/store/icons",
           "dark": "resources/store/icons"
-        }
+        },
+        "categories": ["specAbilities", "work"]
       }
     },
     {
@@ -66,8 +112,8 @@
       "description": "About",
       "url": "about.html",
       "icons": [
-        "resources/images/icon.png",
-        "resources/images/icon@2x.png"
+        "resources/light/icon.png",
+        "resources/light/icon@2x.png"
       ],
       "isViewer": false,
       "EditorsSupport": [

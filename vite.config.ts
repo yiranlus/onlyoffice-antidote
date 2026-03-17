@@ -28,6 +28,7 @@ export default defineConfig({
       const configPath = path.join(__dirname, 'config.json');
       const configData = JSON.parse(readFileSync(configPath, 'utf8'));
       configData.version = pkg.version;
+      configData.offered = pkg.author;
 
       writeFileSync("./build/config.json", JSON.stringify(configData, null, 2));
     }
