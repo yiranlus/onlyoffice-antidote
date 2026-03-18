@@ -1,1 +1,4 @@
 theme: jekyll-theme-minimal
+title: TextCure
+description: An unofficial Druide Antidote plugin for OnlyOffice.
+show_downloads: true
