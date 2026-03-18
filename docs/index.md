@@ -4,7 +4,7 @@ title: TextCure
 ---
 # TextCure
 
-An unofficial Druide Antidote plugin for OnlyOffice.
+An unofficial Druide Antidote plugin for OnlyOffice. I developped it in a few days and I described how I developed it in [my blog](https://notes.yiranls.cc/share/eZemUIHtXvrm).
 
 ## Features
 
