@@ -4,24 +4,18 @@ import {
 } from "@druide-informatique/antidote-api-js";
 
 import * as utils from "./utils";
+import Settings from "./settings";
 import { WordProcessorAgentOnlyOffice } from "./processor-agent/base";
 import { WordProcessorAgentOnlyOfficeDocument } from "./processor-agent/document";
 import { WordProcessorAgentOnlyOfficeDocumentSelection } from "./processor-agent/document-selection";
 import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agent/universal-selection";
 
-((window, undefined) => {
+export function setupPlugin() {
   let isInitialized = false;
   let wordProcessorAgent: WordProcessorAgentOnlyOffice | null;
 
-  function getFullUrl(name: string): string {
-    const location = window.location;
-    const start = location.pathname.lastIndexOf("/") + 1;
-    const file = location.pathname.slice(start);
-    return location.href.replace(file, name);
-  }
-
   const connectionErrorModal = {
-    url: getFullUrl("connection-error.html"),  // Same HTML as config variationnt
+    url: utils.getFullUrl("connection-error.html"),  // Same HTML as config variationnt
     description: window.Asc.plugin.tr("Error"),
     isVisual: true,
     EditorsSupport: ["word"],
@@ -39,31 +33,7 @@ import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agen
   };
   let connectionErrorModalId: string | null;
 
-  function getAntidotePort() {
-    const antidotePort = window.localStorage.getItem("ANTIDOTE_PORT");
-    if (antidotePort) {
-      return Number(antidotePort);
-    }
-
-    throw new Error("Antidote port is not set.")
-  }
-
-  function getUpdateDelayMS() {
-    const updateDelayMS = window.localStorage.getItem("UPDATE_DELAY_MS");
-    if (updateDelayMS) {
-      return Number(updateDelayMS);
-    }
-    return 200;
-  }
-
-  function getForceSetPort() {
-    const forceSetPort = window.localStorage.getItem("FORCE_SET_PORT");
-    if (forceSetPort === "true")
-      return true;
-    return false;
-  }
-
-  function launchCorrector() {
+  const launchCorrector = () => {
     AntidoteConnector.announcePresence();
 
     if (AntidoteConnector.isDetected()) {
@@ -72,9 +42,9 @@ import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agen
 
     const agent = new ConnectixAgent(
       wordProcessorAgent!,
-      (AntidoteConnector.isDetected() && !getForceSetPort())?
+      (AntidoteConnector.isDetected() && !Settings.getForceSetPort())?
       AntidoteConnector.getWebSocketPort :
-      async () => getAntidotePort()
+      async () => Settings.getAntidotePort()
     );
 
     agent.connectWithAntidote()
@@ -100,14 +70,14 @@ import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agen
             if (wordProcessorAgent && !wordProcessorAgent.updatingByAntidote) {
               wordProcessorAgent.updateText();
             }
-          }, getUpdateDelayMS());
+          }, Settings.getUpdateDelayMS());
         } else if (wordProcessorAgent instanceof WordProcessorAgentOnlyOfficeUniversalSelection) {
           setTimeout(() => {
             (wordProcessorAgent as WordProcessorAgentOnlyOfficeUniversalSelection).setAlternativeText(alternativeText);
             if (wordProcessorAgent && !wordProcessorAgent.updatingByAntidote) {
               wordProcessorAgent.updateText();
             }
-          }, getUpdateDelayMS());
+          }, Settings.getUpdateDelayMS());
         }
       }
     } else {
@@ -116,7 +86,6 @@ import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agen
       switch (window.Asc.plugin.info.editorType) {
         case "word":
           promise = utils.callCommand(
-            window.Asc,
             () => {
               const oDocument = Api.GetDocument();
               const oDocumentInfo = oDocument.GetDocumentInfo();
@@ -135,15 +104,14 @@ import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agen
           )
             .then(async ({ title, hasSelection }) => {
               if (hasSelection) {
-                wordProcessorAgent = new WordProcessorAgentOnlyOfficeDocumentSelection(window.Asc, title);
+                wordProcessorAgent = new WordProcessorAgentOnlyOfficeDocumentSelection(title);
               } else {
-                wordProcessorAgent = new WordProcessorAgentOnlyOfficeDocument(window.Asc, title);
+                wordProcessorAgent = new WordProcessorAgentOnlyOfficeDocument(title);
               }
             });
           break;
         case "slide":
           promise = utils.callCommand(
-            window.Asc,
             () => {
               const oPresentation = Api.GetPresentation();
               const oDocumentInfo = oPresentation.GetDocumentInfo();
@@ -155,14 +123,13 @@ import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agen
             false
           )
             .then(title => {
-              wordProcessorAgent = new WordProcessorAgentOnlyOfficeUniversalSelection(window.Asc, title);
+              wordProcessorAgent = new WordProcessorAgentOnlyOfficeUniversalSelection(title);
               (wordProcessorAgent as WordProcessorAgentOnlyOfficeUniversalSelection)
                 .setAlternativeText(alternativeText);
             });
           break;
         case "cell":
           promise = utils.callCommand(
-            window.Asc,
             () => {
               const oDocumentInfo = Api.GetDocumentInfo();
               const title = oDocumentInfo.Title;
@@ -173,7 +140,7 @@ import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agen
             false
           )
             .then(title => {
-              wordProcessorAgent = new WordProcessorAgentOnlyOfficeUniversalSelection(window.Asc, title);
+              wordProcessorAgent = new WordProcessorAgentOnlyOfficeUniversalSelection(title);
               (wordProcessorAgent as WordProcessorAgentOnlyOfficeUniversalSelection)
                 .setAlternativeText(alternativeText);
             });
@@ -193,5 +160,4 @@ import { WordProcessorAgentOnlyOfficeUniversalSelection } from "./processor-agen
       window.Asc.plugin.executeCommand("close", "");
     }
   };
-
-})(window, undefined);
+}

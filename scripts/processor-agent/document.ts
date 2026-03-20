@@ -26,8 +26,8 @@ export class EmptyDataError extends Error {
 export class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgentOnlyOfficeBase {
   paragraphs: Paragraph[] | null;
 
-  constructor(Asc: any, title: string) {
-    super(Asc, title);
+  constructor(title: string) {
+    super(title);
 
     this.paragraphs = null;
 
@@ -71,7 +71,7 @@ export class WordProcessorAgentOnlyOfficeDocument extends WordProcessorAgentOnly
 
     // console.log(`${elementIndex} => "${newText}"`);
 
-    this.Asc.scope.paramsReplace = { elementIndex, text: newText };
+    window.Asc.scope.paramsReplace = { elementIndex, text: newText };
 
     return this.callCommand(
       () => {

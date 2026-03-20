@@ -8,7 +8,10 @@
   <script type="text/javascript" src="https://onlyoffice.github.io/sdkjs-plugins/v1/plugins.js"></script>
   <script type="text/javascript" src="https://onlyoffice.github.io/sdkjs-plugins/v1/plugins-ui.js"></script>
   <link rel="stylesheet" href="https://onlyoffice.github.io/sdkjs-plugins/v1/plugins.css">
-  <script type="module" src="./scripts/connection-error.ts"></script>
+  <script type="module">
+  import { setupPlugin } from "./scripts/connection-error.ts";
+  setupPlugin();
+  </script>
 </head>
 <body>
   <h2 id="antidote-connection-error-heading">Antidote Connection Error</h2>

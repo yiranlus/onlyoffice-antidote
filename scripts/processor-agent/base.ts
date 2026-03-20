@@ -12,7 +12,6 @@ function getUpdateDelayMS() {
 }
 
 export abstract class WordProcessorAgentOnlyOffice extends WordProcessorAgent {
-  Asc: IAsc;
   title: string;
 
   replacingQueue: ParamsReplace[];
@@ -24,9 +23,8 @@ export abstract class WordProcessorAgentOnlyOffice extends WordProcessorAgent {
 
   isAvailable: boolean;
 
-  constructor(Asc: IAsc, title: string) {
+  constructor(title: string) {
     super();
-    this.Asc = Asc;
     this.title = title;
 
     this.replacingQueue = [];
@@ -40,7 +38,7 @@ export abstract class WordProcessorAgentOnlyOffice extends WordProcessorAgent {
   }
 
   sessionStarted(): void {
-    this.Asc.plugin.attachEditorEvent("onParagraphText", (data: any) => {
+    window.Asc.plugin.attachEditorEvent("onParagraphText", (data: any) => {
       if (!this.updatingByAntidote) {
 
         // Check if currently the text is updated by Antidote,
@@ -58,8 +56,8 @@ export abstract class WordProcessorAgentOnlyOffice extends WordProcessorAgent {
 
   sessionEnded(): void {
     super.sessionEnded();
-    this.Asc.plugin.detachEditorEvent("onParagraphText");
-    this.Asc.plugin.executeCommand("close", "");
+    window.Asc.plugin.detachEditorEvent("onParagraphText");
+    window.Asc.plugin.executeCommand("close", "");
 
     this.isAvailable = false;
   }
@@ -127,13 +125,13 @@ export abstract class WordProcessorAgentOnlyOffice extends WordProcessorAgent {
     isClose: boolean = false,
     isCalc: boolean = true,
   ): Promise<T> {
-    return utils.callCommand(this.Asc, func, isClose, isCalc);
+    return utils.callCommand(func, isClose, isCalc);
   }
 
   executeMethod(
     name: string,
     params: any[]
   ): Promise<any> {
-    return utils.executeMethod(this.Asc, name, params);
+    return utils.executeMethod(name, params);
   }
 }

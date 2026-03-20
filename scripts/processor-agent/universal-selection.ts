@@ -12,8 +12,8 @@ export class WordProcessorAgentOnlyOfficeUniversalSelection extends WordProcesso
   text: string | null;
   alternativeText: string | null;
 
-  constructor(Asc: IAsc, title: string) {
-    super(Asc, title);
+  constructor(title: string) {
+    super(title);
 
     this.text = null;
     this.alternativeText = null;

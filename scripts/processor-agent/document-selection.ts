@@ -18,8 +18,8 @@ export class WordProcessorAgentOnlyOfficeDocumentSelection extends WordProcessor
   range: Range | null;
   text: string | null;
 
-  constructor(Asc: IAsc, title: string) {
-    super(Asc, title);
+  constructor(title: string) {
+    super(title);
 
     this.range = null;
     this.text = null;
@@ -39,7 +39,7 @@ export class WordProcessorAgentOnlyOfficeDocumentSelection extends WordProcessor
       params.newString +
       this.text!.substring(params.positionReplaceEnd)
     );
-    this.Asc.scope.selectedRange = { ...this.range!, text: this.text };
+    window.Asc.scope.selectedRange = { ...this.range!, text: this.text };
 
     return this.callCommand(
       () => {
