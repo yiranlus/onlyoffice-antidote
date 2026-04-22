@@ -24,7 +24,6 @@
     "vite": "^7.3.1"
   },
   "dependencies": {
-    "@druide-informatique/antidote-api-js": "^1.3.4",
     "async-mutex": "^0.5.0"
   }
 }
